@@ -4,18 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreContactRequest;
 use App\Http\Requests\UpdateContactRequest;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use App\Models\Contact;
 
 use Inertia\Inertia;
 
-class ContactController extends Controller
+class ContactController extends Controller implements HasMiddleware
 {
+
+    public static function middleware(): array
+    {
+        return [
+            new middleware('auth')
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Inertia::render('Contacts/Index');
+
+        $contacts = Contact::with('organization')->paginate();
+
+        return Inertia::render('Contacts/Index',compact('contacts'));
     }
 
     /**
@@ -39,7 +52,7 @@ class ContactController extends Controller
      */
     public function edit(Contact $contact)
     {
-        return Inertia::render('Contacts/Edit');
+        return Inertia::render('Contacts/Edit', compact('contact'));
     }
 
     /**
