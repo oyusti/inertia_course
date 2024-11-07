@@ -1,10 +1,29 @@
 <script setup>
 import AppLayout from "@/Layouts/AppLayout.vue";
 import Pagination from "@/Components/Pagination.vue";
+import { ref, watch } from 'vue';
+import { Inertia } from '@inertiajs/inertia';
+import debounce from 'lodash.debounce';
+import pickBy from 'lodash.pickby';
 
-defineProps({
+
+const props = defineProps({
     contacts: Object,
+    filters: Object
 });
+
+let search = ref(props.filters.search);
+
+const debouncedSendDataToBackend = debounce((value) => {
+    Inertia.get('/contacts', pickBy({ search: value }), {
+        preserveState: true,
+    });
+}, 300); // Ajusta el tiempo de debounce según tus necesidades
+
+watch(search, (newValue) => {
+    debouncedSendDataToBackend(newValue);
+});
+
 </script>
 
 <template>
@@ -14,10 +33,29 @@ defineProps({
                 Contacts
             </h2>
         </template>
-        <div class="py-12">
+        <div class="py-10">
+
+            <!-- Buscador de contactos -->
+
+            <div class="mb-6 max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <!-- <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First name</label> -->
+                <input type="text" 
+                id="search" 
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                placeholder="Ingrese contacto, organizacion, ciudad o telefono para filtrar"
+                v-model="search" 
+                required />
+            </div>
+
+            
+
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+
+                        
+
+                        <!-- Tabla de registros -->
                         <table
                             class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
                         >
@@ -46,11 +84,7 @@ defineProps({
                                         scope="row"
                                         class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                                     >
-                                        {{
-                                            contact.first_name +
-                                            " " +
-                                            contact.last_name
-                                        }}
+                                        {{contact.first_name + " " +contact.last_name}}
                                     </th>
                                     <td class="px-6 py-4">
                                         {{ contact.organization.name }}

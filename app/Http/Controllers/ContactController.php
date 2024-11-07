@@ -7,7 +7,7 @@ use App\Http\Requests\UpdateContactRequest;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use App\Models\Contact;
-
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ContactController extends Controller implements HasMiddleware
@@ -23,12 +23,17 @@ class ContactController extends Controller implements HasMiddleware
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
 
-        $contacts = Contact::with('organization')->paginate();
+        $filters = $request->all('search');
+        
 
-        return Inertia::render('Contacts/Index',compact('contacts'));
+        $contacts = Contact::with('organization')
+                    ->filter($filters)
+                    ->paginate();
+
+        return Inertia::render('Contacts/Index',compact('contacts','filters'));
     }
 
     /**

@@ -9,7 +9,7 @@ defineProps({
 
 <template>
     <!-- Pagination -->
-    <nav aria-label="Page navigation example">
+    <nav v-if="pagination.links.length > 3" aria-label="Page navigation example">
         <ul class="flex items-center -space-x-px h-8 text-sm">
             <template v-for="(link,key) in pagination.links">
                 <li :key="key" v-if="link.url == null">
